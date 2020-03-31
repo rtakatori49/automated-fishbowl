@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Automated Fishbowl", "Automated Fishbowl\Automated Fishbowl.pyproj", "{DC2104A2-C6F2-4BEE-9855-E8B42E580A3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC2104A2-C6F2-4BEE-9855-E8B42E580A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC2104A2-C6F2-4BEE-9855-E8B42E580A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B2D525EC-5535-430C-98C9-1FFB7183848B}
+	EndGlobalSection
+EndGlobal
