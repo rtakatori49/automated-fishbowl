@@ -1,7 +1,10 @@
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime, timedelta
 
-chromedriver = 'D:\\Downloads\\chromedriver'
+chromedriver = 'C:\\Users\\rtold\\Downloads\\chromedriver'
+# chromedriver = 'D:\\Downloads\\chromedriver'
 browser = webdriver.Chrome(chromedriver)
 browser.get('http://schedule.lib.calpoly.edu/rooms.php?i=2015')
 
@@ -17,5 +20,6 @@ if target_month != current_month and target_day != "14":
     next_button.click()
 calendar_day = browser.find_element_by_link_text(target_day)
 calendar_day.click()
-reserve_time_1 = browser.find_element_by_xpath('//a[@data-seq = "5414101"]')
+WebDriverWait(browser, 10).unitil
+reserve_time_1 = browser.find_element_by_css_selector('#\37 10314480')
 reserve_time_1.click()
