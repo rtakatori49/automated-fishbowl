@@ -3,7 +3,7 @@
 # 04/06/2020
 # Created to automate fishbowl reservation
 
-# Libraries
+# Modules
 from selenium import webdriver
 import os.path
 from datetime import datetime, timedelta

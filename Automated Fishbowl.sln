@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29911.84
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Automated Fishbowl", "Automated Fishbowl\Automated Fishbowl.pyproj", "{DC2104A2-C6F2-4BEE-9855-E8B42E580A3D}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Automated Fishbowl", "Automated Fishbowl.pyproj", "{DC2104A2-C6F2-4BEE-9855-E8B42E580A3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +18,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {B2D525EC-5535-430C-98C9-1FFB7183848B}
+		SolutionGuid = {F818EC83-4D30-4C36-845A-6C62551612C5}
 	EndGlobalSection
 EndGlobal
