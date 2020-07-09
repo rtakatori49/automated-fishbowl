@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from time import sleep
 from tkinter import *
 from PIL import Image, ImageTk
+import sys
 
 # Create grid
 class GridCreator:
@@ -96,6 +97,7 @@ if not file_exists:
     my_button = Button(root, text="Submit", command=my_click)
     my_button.grid(row=7, column=1)
     root.mainloop()
+    sys.exit(0)
 
 # Save user information in text file
 user_info = open("userinfo.txt", "r")
