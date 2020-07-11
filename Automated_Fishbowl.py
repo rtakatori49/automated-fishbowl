@@ -9,6 +9,7 @@ import os.path
 from datetime import datetime, timedelta
 from time import sleep
 from tkinter import *
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import sys
 
@@ -97,6 +98,7 @@ if not file_exists:
     my_button = Button(root, text="Submit", command=my_click)
     my_button.grid(row=7, column=1)
     root.mainloop()
+    messagebox.showinfo('Completed!', 'Initial information applied. Please configure Task Scheduler to automate reservation.')
     sys.exit(0)
 
 # Save user information in text file
