@@ -1,0 +1,24 @@
+{
+    "icon": "resources/fish.ico",
+    "geometry": "450x250",
+    "title": "Create User Profile",
+    "grids": {
+        "page_name": "Please enter your information:",
+        "first_name": "First Name:",
+        "last_name": "Last Name:",
+        "email": "Cal Poly Email:",
+        "group_name": "Group Name:",
+        "room_number": "Room Number:",
+        "time": "Reservation Time:"
+    },
+    "entries": [
+        "First Name:",
+        "Last Name:",
+        "Cal Poly Email:",
+        "Group Name:"
+    ],
+    "dropdowns": [
+        "Room Number:",
+        "Reservation Time:"
+    ]
+}
