@@ -4,7 +4,11 @@ import tkinter
 
 from PIL import Image, ImageTk
 
-from automated_fishbowl import load_json
+# Load json
+def load_json(filename):
+    with open(filename) as f:
+        data = json.load(f)
+    return data
 
 def create_user():
     user_dict = {
@@ -45,6 +49,7 @@ def create_dropdown(root, variable_list, row, column_entry):
     option_menu.grid(row=row, column=column_entry)
     return variable
 
+
 def create_ui(ui):
     # Create UI
     root = tkinter.Tk()
@@ -53,9 +58,9 @@ def create_ui(ui):
     root.title(ui.title) # title
     for idx, name in enumerate(ui.grids):
         if idx == 0:
-            create_grid(root, name, idx, columnspan=2)
+            create_grid(root, ui.grids[name], idx, columnspan=2)
         else:
-            create_grid(root, name, idx)
+            create_grid(root, ui.grids[name], idx)
         if name in ui.entries:
             create_entry(root, idx)
         if name in ui.dropdowns:
