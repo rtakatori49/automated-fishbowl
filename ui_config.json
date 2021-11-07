@@ -1,5 +1,5 @@
 {
-    "icon": "resources/fish.ico",
+    "icon": "@fish.xbm",
     "geometry": "450x250",
     "title": "Create User Profile",
     "grids": {
