@@ -19,13 +19,35 @@ def create_user():
 
 class UI:
     def __init__(self):
-        d = load_json("ui_config.json")
-        self.icon = d["icon"]
-        self.geometry = d["geometry"]
-        self.title = d["title"]
-        self.grids = d["grids"]
-        self.entries = d["entries"]
-        self.dropdowns = d["dropdowns"]
+        self.icon_windows = "resources/fish.ico"
+        self.geometry = "450x250"
+        self.title = "Create User Profile"
+        self.grids = {
+            "page_name": "Please enter your information:",
+            "first_name": "First Name:",
+            "last_name": "Last Name:",
+            "email": "Cal Poly Email:",
+            "group_name": "Group Name:",
+            "room_number": "Room Number:",
+            "time": "Reservation Time:"
+        }
+        self.entries = [
+            "First Name:",
+            "Last Name:",
+            "Cal Poly Email:",
+            "Group Name:"
+        ]
+        self.dropdowns = [
+            "Room Number:",
+            "Reservation Time:"
+        ]
+        self.time_list = [
+            "8:00 AM ~ 10:00 AM",
+            "11:00 AM ~ 1:00 PM",
+            "2:00 PM ~ 4:00 PM",
+            "5:00 PM ~ 7:00 PM",
+            "8:00 PM ~ 10:00 PM"
+        ]
 
 def create_grid(root, name, row, column=0, columnspan=1):
     grid_label = tkinter.Label(root, text=name)
@@ -48,18 +70,18 @@ def create_dropdown(root, variable_list, row, column_entry):
 def create_ui(ui):
     # Create UI
     root = tkinter.Tk()
-    root.wm_iconbitmap(ui.icon) # icon
+    root.wm_iconbitmap(ui.icon_windows) # icon
     root.geometry(ui.geometry) # page size
     root.title(ui.title) # title
     for idx, name in enumerate(ui.grids):
         if idx == 0:
-            create_grid(root, name, idx, columnspan=2)
+            create_grid(root, ui.grids[name], idx, columnspan=2)
         else:
-            create_grid(root, name, idx)
-        if name in ui.entries:
+            create_grid(root, ui.grids[name], idx)
+        if ui.grids[name] in ui.entries:
             create_entry(root, idx)
-        if name in ui.dropdowns:
-            create_dropdown(root, idx,)
+        if ui.grids[name] in ui.dropdowns:
+            create_dropdown(root, idx)
     root.mainloop()
     user_dict = {
         "first_name": "",
