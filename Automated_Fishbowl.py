@@ -15,6 +15,7 @@ import os
 import time
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -39,17 +40,30 @@ def load_json(filename):
 
 class Config:
     def __init__(self):
-        self.reserver = load_json("config/reserver.json")
-        self.time_element = load_json("config/time_element.json")
-        fishbowl = load_json("config/fishbowl.json")
+        # self.reserver = load_json("config/reserver.json")
+        # self.time_element = load_json("config/time_element.json")
+        # fishbowl = load_json("config/fishbowl.json")
+        # self.link = fishbowl["link"]
+        # self.room = fishbowl["room"]
+        # self.time = fishbowl["time"]
+        # email_dict = load_json("config/email.json")
+        # self.email = email_dict["email"]
+        # self.password = email_dict["password"]
+        # self.link_base = email_dict["link_base"]
+        # self.link_string_length = email_dict["link_string_length"]
+        d = load_json("config.json")
+        self.reserver = d["reserver"]
+        self.time_element = d["time_element"]
+        fishbowl = d["fishbowl"]
         self.link = fishbowl["link"]
         self.room = fishbowl["room"]
         self.time = fishbowl["time"]
-        email_dict = load_json("config/email.json")
-        self.email = email_dict["email"]
+        email_dict = d["email"]
+        self.email = email_dict["user"]
         self.password = email_dict["password"]
         self.link_base = email_dict["link_base"]
         self.link_string_length = email_dict["link_string_length"]
+        self.operating_system = d["os"]
 
 def accept_email(config):
     for user in config.reserver:
@@ -72,8 +86,15 @@ def accept_email(config):
                         "http://schedule.lib.calpoly.edu/confirm.php")
                     link_string = body_string[link_index:link_index+88]
                     logger.info(f"Confirmation link: {link_string}.")
-                    chromedriver_autoinstaller.install()
-                    browser = webdriver.Chrome()
+                    chrome_options = Options()
+                    chrome_options.add_argument("--headless")
+                    if config.operating_system == "windows":
+                        chromedriver_autoinstaller.install()
+                        browser = webdriver.Chrome(options=chrome_options)
+                    if config.operating_system == "raspi":
+                        browser = webdriver.Chrome(
+                            "/usr/lib/chromium-browser/chromedriver",
+                            options=chrome_options)
                     try:
                         browser.get(link_string)
                     except Exception as e:
@@ -118,8 +139,15 @@ def reserve(config):
     current_month, target_month, target_day = get_target_date()
     for idx, user in enumerate(config.reserver):
         ## Open browser
-        chromedriver_autoinstaller.install()
-        browser = webdriver.Chrome()
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        if config.operating_system == "windows":
+            chromedriver_autoinstaller.install()
+            browser = webdriver.Chrome(options=chrome_options)
+        if config.operating_system == "raspi":
+            browser = webdriver.Chrome(
+                "/usr/lib/chromium-browser/chromedriver",
+                options=chrome_options)
         try:
             logger.info("Opening browser.")
             browser.get(config.link)
