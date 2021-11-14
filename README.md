@@ -2,22 +2,31 @@
 
 This was created in order to remove the effort required to reserve a fishbowl.
 
-# Initial Setup and UI
-![UI](UI.png)
+# Initial Setup
 
-The application will allow the user to input the information neccessary to reserve their respective fishbowl time slots. After the first time, the input will be stored in a text file called "user_info.txt", and no input will be necessary. The user may edit the file directly if there needs to be a change made. The file can also be deleted to trigger the UI to showup again.
+1. Clone this repository to a Raspberry Pi in /home/pi
+
+2. Install the required depedencies through requirements.txt
+
+`pip3 install -r requirements.txt`
+
+3. Edit JSON configuration files in directory `config` if anything has changed:
+    * email.json if main email that will accept has changed, or the accept link has changed
+    * fishbowl.json if fishbowl site link, room, time has changed
+    * reserver.json if Cal Poly email used to reserve fishbowl needs to be changed
+    * time_element.json if inspect element of times have changed
+
+4. Edit crontab to schedule to run every weekday:
+
+`crontab -e`
+
+At the end of the crontab add:
+
+`0 0 * * 1-5 python3 /home/pi/automated-fishbowl/automated_fishbowl.py`
+
+5. Configure each participating reserving user to auto forward the confirmation email to the centralized email.
+
+Follow this link for outlook forwarding: https://www.lifewire.com/forward-outlook-mail-1170648
 
 # Automation
-The code is written in Python and uses Selenium to web scrape. This code utilizes the ChromeDriver, so it will only run on Chrome. Due to the nature of ChromeDriver, the version of the ChromeDriver and Chrome must be the same. Please see the link below if the preinstalled ChromeDriver version does not match your current Chrome version.
-
-[ChromeDriver](https://chromedriver.chromium.org/downloads)
-
-The application also needs to be scheduled by the Task Scheduler in order to be useful.
-
-# Furture Updates
-* Automated email confirmation
-  * Current version doesn't confirm the email automatically. Once school is back in session, I will write code that can achieve this.
-* Fully test the application
-  * With school not in session, I couldn't test the current version. Will be tested once the fishbowl reservations are back.
-* MacOS version
-  * I don't have a Mac to develop this application, so if anyone wants to make one you are more than welcome to.
+The code was written with the intention of running on a Linux based system running 24/7 with crontab running this script at 00:00:00 every weekday. The script will take in all the configured users to automatically reserve fisbowl spots 2 weeks in advanced. This part is done with selenium. Then those reservation confirmation emails should be forwarded to one centralized email to also be automatically confirmed.
