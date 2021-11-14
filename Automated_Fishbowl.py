@@ -56,7 +56,7 @@ class Config:
 
 def accept_email(config):
     for user in config.reserver:
-        user_email = config.reserver[user]["email"]
+        user_email = user["email"]
         logger.info(f"Confirming reservation for {user_email}.")
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(config.email, config.password)
