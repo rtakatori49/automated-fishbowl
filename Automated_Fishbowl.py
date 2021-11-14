@@ -40,17 +40,6 @@ def load_json(filename):
 
 class Config:
     def __init__(self):
-        # self.reserver = load_json("config/reserver.json")
-        # self.time_element = load_json("config/time_element.json")
-        # fishbowl = load_json("config/fishbowl.json")
-        # self.link = fishbowl["link"]
-        # self.room = fishbowl["room"]
-        # self.time = fishbowl["time"]
-        # email_dict = load_json("config/email.json")
-        # self.email = email_dict["email"]
-        # self.password = email_dict["password"]
-        # self.link_base = email_dict["link_base"]
-        # self.link_string_length = email_dict["link_string_length"]
         d = load_json("config.json")
         self.reserver = d["reserver"]
         self.time_element = d["time_element"]
@@ -97,14 +86,14 @@ def accept_email(config):
                             options=chrome_options)
                     try:
                         browser.get(link_string)
+                        # Submit
+                        submit = browser.find_element_by_xpath(
+                            '//*[@id="rm_confirm_link"]')
+                        submit.click()
+                        browser.close()
+                        logger.info(f"Confirmation completed for {user_email}.")
                     except Exception as e:
                         print(e)
-                    # Submit
-                    submit = browser.find_element_by_xpath(
-                        '//*[@id="rm_confirm_link"]')
-                    submit.click()
-                    browser.close()
-                    logger.info(f"Confirmation completed for {user_email}.")
         imap.close()
 
 def get_target_date():
@@ -172,26 +161,25 @@ def reserve(config):
                 reserve_time = browser.find_element_by_xpath(
                     f"//*[@data-seq={time_element}]")
                 reserve_time.click()
+                # Fill in form
+                d = config.reserver[user]
+                logger.info(f"Starting reservation for {d['first_name']}.")
+                first_name = browser.find_element_by_xpath('//*[@id="fname"]')
+                first_name.send_keys(d["first_name"])
+                last_name = browser.find_element_by_xpath('//*[@id="lname"]')
+                last_name.send_keys(d["last_name"])
+                email = browser.find_element_by_xpath('//*[@id="email"]')
+                email.send_keys(d["email"])
+                group_name = browser.find_element_by_xpath('//*[@id="nick"]')
+                group_name.send_keys(f"{d['first_name']}'s Study Group")
+
+                # Submit
+                submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
+                submit.click()
+                browser.close()
+                logger.info(f"Reservation for {d['first_name']} completed.")
             except Exception as e:
                 logger.error(e)
-                
-        # Fill in form
-        d = config.reserver[user]
-        logger.info(f"Starting reservation for {d['first_name']}.")
-        first_name = browser.find_element_by_xpath('//*[@id="fname"]')
-        first_name.send_keys(d["first_name"])
-        last_name = browser.find_element_by_xpath('//*[@id="lname"]')
-        last_name.send_keys(d["last_name"])
-        email = browser.find_element_by_xpath('//*[@id="email"]')
-        email.send_keys(d["email"])
-        group_name = browser.find_element_by_xpath('//*[@id="nick"]')
-        group_name.send_keys(f"{d['first_name']}'s Study Group")
-
-        # Submit
-        submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
-        submit.click()
-        browser.close()
-        logger.info(f"Reservation for {d['first_name']} completed.")
     
 def main():
     config = Config()
