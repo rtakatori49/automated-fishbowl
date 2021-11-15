@@ -61,7 +61,7 @@ def accept_email(config):
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(config.email, config.password)
         imap.select("inbox")
-        _, search_data = imap.search(None, f"FROM {user_email}")
+        _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}")
         for num in search_data[0].split():
             _, data = imap.fetch(num, '(RFC822)')
             _, b = data[0]
@@ -161,25 +161,28 @@ def reserve(config):
                 reserve_time = browser.find_element_by_xpath(
                     f"//*[@data-seq={time_element}]")
                 reserve_time.click()
-                # Fill in form
-                d = config.reserver[user]
-                logger.info(f"Starting reservation for {d['first_name']}.")
-                first_name = browser.find_element_by_xpath('//*[@id="fname"]')
-                first_name.send_keys(d["first_name"])
-                last_name = browser.find_element_by_xpath('//*[@id="lname"]')
-                last_name.send_keys(d["last_name"])
-                email = browser.find_element_by_xpath('//*[@id="email"]')
-                email.send_keys(d["email"])
-                group_name = browser.find_element_by_xpath('//*[@id="nick"]')
-                group_name.send_keys(f"{d['first_name']}'s Study Group")
-
-                # Submit
-                submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
-                submit.click()
-                browser.close()
-                logger.info(f"Reservation for {d['first_name']} completed.")
             except Exception as e:
                 logger.error(e)
+         # Fill in form
+        d = config.reserver[user]
+        logger.info(f"Starting reservation for {d['first_name']}.")
+        try:
+            first_name = browser.find_element_by_xpath('//*[@id="fname"]')
+            first_name.send_keys(d["first_name"])
+            last_name = browser.find_element_by_xpath('//*[@id="lname"]')
+            last_name.send_keys(d["last_name"])
+            email = browser.find_element_by_xpath('//*[@id="email"]')
+            email.send_keys(d["email"])
+            group_name = browser.find_element_by_xpath('//*[@id="nick"]')
+            group_name.send_keys(f"{d['first_name']}'s Study Group")
+
+            # Submit
+            submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
+            submit.click()
+            browser.close()
+            logger.info(f"Reservation for {d['first_name']} completed.")
+        except Exception as e:
+            logger.error(e)
     
 def main():
     config = Config()
