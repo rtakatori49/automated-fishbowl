@@ -71,9 +71,9 @@ def accept_email(config):
                     or part.get_content_type == "text/html":
                     body = part.get_payload(decode=True)
                     body_string = body.decode()
-                    link_index = body_string.index(
-                        "http://schedule.lib.calpoly.edu/confirm.php")
-                    link_string = body_string[link_index:link_index+88]
+                    link_index = body_string.index(config.link_base)
+                    link_string = body_string[
+                        link_index:link_index+config.link_string_length]
                     logger.info(f"Confirmation link: {link_string}.")
                     chrome_options = Options()
                     chrome_options.add_argument("--headless")
