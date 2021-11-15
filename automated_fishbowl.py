@@ -164,7 +164,7 @@ def reserve(config):
             except Exception as e:
                 logger.error(e)
          # Fill in form
-        d = config.reserver[user]
+        d = config.reserver[idx]
         logger.info(f"Starting reservation for {d['first_name']}.")
         try:
             first_name = browser.find_element_by_xpath('//*[@id="fname"]')
