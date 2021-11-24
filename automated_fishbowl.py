@@ -80,10 +80,10 @@ def accept_email(config):
                     logger.info(f"Confirmation link: {link_string}.")
                     chrome_options = Options()
                     chrome_options.add_argument("--headless")
-                    if config.operating_system is "windows":
+                    if config.operating_system == "windows":
                         chromedriver_autoinstaller.install()
                         browser = webdriver.Chrome(options=chrome_options)
-                    if config.operating_system is "raspi":
+                    if config.operating_system == "raspi":
                         browser = webdriver.Chrome(
                             "/usr/lib/chromium-browser/chromedriver",
                             options=chrome_options)
@@ -112,10 +112,10 @@ def get_target_date(config):
     # Target date (2 week ahead)
     delta_date = datetime.timedelta(14)
     target_date = current_date + delta_date
-    if config.operating_system is "windows":
+    if config.operating_system == "windows":
         month_string = "%#m"
         day_string = "%#d"
-    if config.operating_system is "raspi":
+    if config.operating_system == "raspi":
         month_string = "%-m"
         day_string = "%-d"
     target_month = target_date.strftime(month_string)
@@ -143,10 +143,10 @@ def reserve(config):
         # Open browser
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        if config.operating_system is "windows":
+        if config.operating_system == "windows":
             chromedriver_autoinstaller.install()
             browser = webdriver.Chrome(options=chrome_options)
-        if config.operating_system is "raspi":
+        if config.operating_system == "raspi":
             pass
             browser = webdriver.Chrome(
                 "/usr/lib/chromium-browser/chromedriver",
