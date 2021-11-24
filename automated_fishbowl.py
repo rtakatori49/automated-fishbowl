@@ -12,6 +12,7 @@ import imaplib
 import logging
 import numpy as np
 import os
+import re
 import time
 
 from selenium import webdriver
@@ -51,7 +52,6 @@ class Config:
         self.email = email_dict["user"]
         self.password = email_dict["password"]
         self.link_base = email_dict["link_base"]
-        self.link_string_length = email_dict["link_string_length"]
         self.operating_system = d["os"]
 
 def accept_email(config):
@@ -71,9 +71,10 @@ def accept_email(config):
                     or part.get_content_type == "text/html":
                     body = part.get_payload(decode=True)
                     body_string = body.decode()
-                    link_index = body_string.index(config.link_base)
-                    link_string = body_string[
-                        link_index:link_index+config.link_string_length]
+                    list_of_link = re.findall(
+                        r'(https?://[^\s]+)', body_string)
+                    match_list = [match for match in list_of_link if config.link_base in match]
+                    link_string = match_list[0]
                     logger.info(f"Confirmation link: {link_string}.")
                     chrome_options = Options()
                     chrome_options.add_argument("--headless")
@@ -87,8 +88,12 @@ def accept_email(config):
                     try:
                         browser.get(link_string)
                         # Submit
+                        action = webdriver.ActionChains(browser)
                         submit = browser.find_element_by_xpath(
                             '//*[@id="rm_confirm_link"]')
+                        action.move_to_element(submit)
+                        action.click()
+                        action.perform()
                         submit.click()
                         browser.close()
                         logger.info(f"Confirmation completed for {user_email}.")
@@ -106,7 +111,7 @@ def get_target_date():
     delta_date = datetime.timedelta(14)
     target_date = current_date + delta_date
     target_month = target_date.strftime("%m")
-    target_day = target_date.strftime("%d")
+    target_day = target_date.strftime("%#d")
     return current_month, target_month, target_day
 
 # Reservation
@@ -127,13 +132,14 @@ def reserve(config):
     # Get target date
     current_month, target_month, target_day = get_target_date()
     for idx, user in enumerate(config.reserver):
-        ## Open browser
+        # Open browser
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         if config.operating_system == "windows":
             chromedriver_autoinstaller.install()
             browser = webdriver.Chrome(options=chrome_options)
         if config.operating_system == "raspi":
+            pass
             browser = webdriver.Chrome(
                 "/usr/lib/chromium-browser/chromedriver",
                 options=chrome_options)
@@ -144,12 +150,13 @@ def reserve(config):
             logger.error(e)
 
         # Change page if target date is next month
-        if target_month != current_month and target_day != "14":
+        if target_month != current_month and target_day != "13":
             next_button = browser.find_element_by_xpath(
                 '//*[@id="s-lc-rm-cal"]/div/div/a[2]/span')
             next_button.click()
 
         # Click on target date
+        print(target_day)
         calendar_day = browser.find_element_by_link_text(target_day)
         calendar_day.click()
         time.sleep(1)
@@ -187,7 +194,10 @@ def reserve(config):
 def main():
     config = Config()
     setup_logger(logger)
-    reserve(config)
+    #reserve(config)
+    logger.info(
+        "Sleeping for 1 minute to allow for confirmation link to appear.")
+    time.sleep(60)
     accept_email(config)
 
 if __name__ == "__main__":

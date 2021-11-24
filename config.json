@@ -1,21 +1,6 @@
 {
     "reserver": [
         {
-            "first_name": "Ryo",
-            "last_name": "Takatori",
-            "email": "rtakatori49@gmail.com"
-        },
-        {
-            "first_name": "PJ",
-            "last_name": "Yebisu",
-            "email": "jyebisu@calpoly.edu"
-        },
-        {
-            "first_name": "Ryo",
-            "last_name": "Takatori",
-            "email": "rtakator@calpoly.edu"
-        },
-        {
             "first_name": "PJ",
             "last_name": "Yebisu",
             "email": "jyebisu@calpoly.edu"
@@ -24,13 +9,12 @@
     "fishbowl": {
         "link": "http://schedule.lib.calpoly.edu/rooms.php?i=2015",
         "room": "216L",
-        "time": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        "time": [9, 10, 11]
     },
     "email": {
         "user": "jsafishbowl@gmail.com",
         "password": "nzbwdhnoapnupopm",
-        "link_base": "https://schedule.lib.calpoly.edu/confirm.php",
-        "link_string_length": 88
+        "link_base": "https://schedule.lib.calpoly.edu/confirm.php?i="
     },
     "time_element": {
         "216L":{
@@ -47,7 +31,7 @@
             "19": 5211111
         },
         "216N": {
-            "09": 5414101,
+            "9": 5414101,
             "10": 5414102,
             "11": 5414103,
             "12": 5414104,
@@ -60,7 +44,7 @@
             "19": 5414111
         },
         "216Q": {
-            "09": 5416101,
+            "9": 5416101,
             "10": 5416102,
             "11": 5416103,
             "12": 5416104,
@@ -73,7 +57,7 @@
             "19": 5416111
         },
         "216S": {
-            "09": 5418101,
+            "9": 5418101,
             "10": 5418102,
             "11": 5418103,
             "12": 5418104,
@@ -86,5 +70,5 @@
             "19": 5418111
         }
     },
-    "os": "windows"
+    "os": "raspi"
 }
