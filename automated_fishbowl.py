@@ -158,7 +158,6 @@ def reserve(config):
             next_button.click()
 
         # Click on target date
-        print(target_day)
         calendar_day = browser.find_element_by_link_text(target_day)
         calendar_day.click()
         time.sleep(1)
@@ -174,23 +173,23 @@ def reserve(config):
             except Exception as e:
                 logger.error(e)
          # Fill in form
-        d = config.reserver[idx]
-        logger.info(f"Starting reservation for {d['first_name']}.")
+        logger.info(f"Starting reservation for {user['first_name']}.")
         try:
+            print(user)
             first_name = browser.find_element_by_xpath('//*[@id="fname"]')
-            first_name.send_keys(d["first_name"])
+            first_name.send_keys(user["first_name"])
             last_name = browser.find_element_by_xpath('//*[@id="lname"]')
-            last_name.send_keys(d["last_name"])
+            last_name.send_keys(user["last_name"])
             email = browser.find_element_by_xpath('//*[@id="email"]')
-            email.send_keys(d["email"])
+            email.send_keys(user["email"])
             group_name = browser.find_element_by_xpath('//*[@id="nick"]')
-            group_name.send_keys(f"{d['first_name']}'s Study Group")
+            group_name.send_keys(f"{user['first_name']}'s Study Group")
 
             # Submit
             submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
             submit.click()
             browser.close()
-            logger.info(f"Reservation for {d['first_name']} completed.")
+            logger.info(f"Reservation for {user['first_name']} completed.")
         except Exception as e:
             logger.error(e)
     
