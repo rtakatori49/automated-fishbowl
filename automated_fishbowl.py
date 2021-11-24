@@ -80,10 +80,10 @@ def accept_email(config):
                     logger.info(f"Confirmation link: {link_string}.")
                     chrome_options = Options()
                     chrome_options.add_argument("--headless")
-                    if config.operating_system == "windows":
+                    if config.operating_system is "windows":
                         chromedriver_autoinstaller.install()
                         browser = webdriver.Chrome(options=chrome_options)
-                    if config.operating_system == "raspi":
+                    if config.operating_system is "raspi":
                         browser = webdriver.Chrome(
                             "/usr/lib/chromium-browser/chromedriver",
                             options=chrome_options)
@@ -103,7 +103,7 @@ def accept_email(config):
                         print(e)
         imap.close()
 
-def get_target_date():
+def get_target_date(config):
     logger.info("Getting target date.")
     # Today's date
     current_date = datetime.datetime.now()
@@ -112,8 +112,14 @@ def get_target_date():
     # Target date (2 week ahead)
     delta_date = datetime.timedelta(14)
     target_date = current_date + delta_date
-    target_month = target_date.strftime("%m")
-    target_day = target_date.strftime("%#d")
+    if config.operating_system is "windows":
+        month_string = "%#m"
+        day_string = "%#d"
+    if config.operating_system is "raspi":
+        month_string = "%-m"
+        day_string = "%-d"
+    target_month = target_date.strftime(month_string)
+    target_day = target_date.strftime(day_string)
     return current_month, target_month, target_day
 
 # Reservation
@@ -137,10 +143,10 @@ def reserve(config):
         # Open browser
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        if config.operating_system == "windows":
+        if config.operating_system is "windows":
             chromedriver_autoinstaller.install()
             browser = webdriver.Chrome(options=chrome_options)
-        if config.operating_system == "raspi":
+        if config.operating_system is "raspi":
             pass
             browser = webdriver.Chrome(
                 "/usr/lib/chromium-browser/chromedriver",
