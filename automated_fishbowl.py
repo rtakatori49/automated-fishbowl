@@ -158,6 +158,7 @@ def reserve(config):
             next_button.click()
 
         # Click on target date
+        print(target_day)
         calendar_day = browser.find_element_by_link_text(target_day)
         calendar_day.click()
         time.sleep(1)
@@ -175,7 +176,6 @@ def reserve(config):
          # Fill in form
         logger.info(f"Starting reservation for {user['first_name']}.")
         try:
-            print(user)
             first_name = browser.find_element_by_xpath('//*[@id="fname"]')
             first_name.send_keys(user["first_name"])
             last_name = browser.find_element_by_xpath('//*[@id="lname"]')
