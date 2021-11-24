@@ -10,7 +10,7 @@ This was created in order to remove the effort required to reserve a fishbowl.
 
 `pip3 install -r requirements.txt`
 
-3. Edit JSON configuration files in directory `config` if anything has changed:
+3. Copy config_template.json and rename to config.json:
     * email.json if main email that will accept has changed, or the accept link has changed
     * fishbowl.json if fishbowl site link, room, time has changed
     * reserver.json if Cal Poly email used to reserve fishbowl needs to be changed
