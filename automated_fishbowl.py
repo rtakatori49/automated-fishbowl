@@ -61,7 +61,8 @@ def accept_email(config):
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(config.email, config.password)
         imap.select("inbox")
-        _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}")
+        _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
+            'HEADER subject "Please confirm your booking"')
         for num in search_data[0].split():
             _, data = imap.fetch(num, '(RFC822)')
             _, b = data[0]
@@ -196,7 +197,7 @@ def reserve(config):
 def main():
     config = Config()
     setup_logger(logger)
-    #reserve(config)
+    reserve(config)
     logger.info(
         "Sleeping for 1 minute to allow for confirmation link to appear.")
     time.sleep(60)
