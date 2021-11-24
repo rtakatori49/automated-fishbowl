@@ -164,7 +164,6 @@ def reserve(config):
             next_button.click()
 
         # Click on target date
-        print(target_day)
         calendar_day = browser.find_element_by_link_text(target_day)
         calendar_day.click()
         time.sleep(1)
