@@ -73,7 +73,8 @@ def accept_email(config):
                     body_string = body.decode()
                     list_of_link = re.findall(
                         r'(https?://[^\s]+)', body_string)
-                    match_list = [match for match in list_of_link if config.link_base in match]
+                    match_list = [match for match in list_of_link
+                        if config.link_base in match]
                     link_string = match_list[0]
                     logger.info(f"Confirmation link: {link_string}.")
                     chrome_options = Options()
@@ -95,7 +96,8 @@ def accept_email(config):
                         action.click()
                         action.perform()
                         browser.close()
-                        logger.info(f"Confirmation completed for {user_email}.")
+                        logger.info(
+                            f"Confirmation completed for {user_email}.")
                     except Exception as e:
                         print(e)
         imap.close()
@@ -161,7 +163,8 @@ def reserve(config):
         time.sleep(1)
 
         # Reserve 3 hours
-        time_element_list = [config.time_element[config.room][str(x)] for x in time_assignment[idx]]
+        time_element_list = [config.time_element[config.room][str(x)]
+            for x in time_assignment[idx]]
         for time_element in time_element_list:
             try:
                 reserve_time = browser.find_element_by_xpath(
