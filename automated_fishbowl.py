@@ -94,7 +94,6 @@ def accept_email(config):
                         action.move_to_element(submit)
                         action.click()
                         action.perform()
-                        submit.click()
                         browser.close()
                         logger.info(f"Confirmation completed for {user_email}.")
                     except Exception as e:
