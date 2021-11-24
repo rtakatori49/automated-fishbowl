@@ -138,7 +138,7 @@ def reserve(config):
         except ValueError as e:
             logger.error(e)
     # Get target date
-    current_month, target_month, target_day = get_target_date()
+    current_month, target_month, target_day = get_target_date(config)
     for idx, user in enumerate(config.reserver):
         # Open browser
         chrome_options = Options()
