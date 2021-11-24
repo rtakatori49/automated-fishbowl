@@ -29,7 +29,7 @@ def setup_logger(logger):
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     file_handler = logging.FileHandler("log/error.txt")
-    file_handler.setLevel(logging.ERROR)
+    file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
@@ -203,8 +203,8 @@ def main():
     setup_logger(logger)
     reserve(config)
     logger.info(
-        "Sleeping for 1 minute to allow for confirmation link to appear.")
-    time.sleep(60)
+        "Sleeping for 5 minute to allow for confirmation link to appear.")
+    time.sleep(300)
     accept_email(config)
 
 if __name__ == "__main__":
