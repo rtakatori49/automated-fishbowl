@@ -122,13 +122,10 @@ def user_email_confirm(user):
 def email_confirm():
     processes = []
     for user in config.reserver:
-        print(user)
         p = Process(target=user_email_confirm, args=(user,))
-        print(p)
         p.start()
         processes.append(p)
     for process in processes:
-        print("joining")
         process.join()
 
 def get_target_date():
