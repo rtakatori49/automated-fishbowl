@@ -63,54 +63,73 @@ def setup_logger(logger):
     logger.addHandler(file_handler)
     multiprocessing_logging.install_mp_handler(logger)
 
-def accept_email():
-    for user in config.reserver:
-        user_email = user["email"]
-        logger.debug(f"Confirming reservation for {user_email}.")
-        imap = imaplib.IMAP4_SSL("imap.gmail.com")
-        imap.login(config.email, config.password)
-        imap.select("inbox")
+def user_email_confirm(user):
+    user_email = user["email"]
+    logger.debug(f"Confirming reservation for {user_email}.")
+    imap = imaplib.IMAP4_SSL("imap.gmail.com")
+    imap.login(config.email, config.password)
+    imap.select("inbox")
+    while True:
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
             'HEADER subject "Please confirm your booking"')
-        for num in search_data[0].split():
-            _, data = imap.fetch(num, '(RFC822)')
-            _, b = data[0]
-            email_message = email.message_from_bytes(b)
-            for part in email_message.walk():
-                if part.get_content_type() == "text/plain"\
-                    or part.get_content_type == "text/html":
-                    body = part.get_payload(decode=True)
-                    body_string = body.decode()
-                    list_of_link = re.findall(
-                        r'(https?://[^\s]+)', body_string)
-                    match_list = [match for match in list_of_link
-                        if config.link_base in match]
-                    link_string = match_list[0]
-                    logger.debug(f"Confirmation link: {link_string}.")
-                    chrome_options = Options()
-                    chrome_options.add_argument("--headless")
-                    if config.operating_system == "windows":
-                        chromedriver_autoinstaller.install()
-                        browser = webdriver.Chrome(options=chrome_options)
-                    if config.operating_system == "raspi":
-                        browser = webdriver.Chrome(
-                            "/usr/lib/chromium-browser/chromedriver",
-                            options=chrome_options)
-                    try:
-                        browser.get(link_string)
-                        # Submit
-                        action = webdriver.ActionChains(browser)
-                        submit = browser.find_element_by_xpath(
-                            '//*[@id="rm_confirm_link"]')
-                        action.move_to_element(submit)
-                        action.click()
-                        action.perform()
-                        browser.close()
-                        logger.debug(
-                            f"Confirmation completed for {user_email}.")
-                    except Exception as e:
-                        print(e)
-        imap.close()
+        if search_data[0].split():
+            for num in search_data[0].split():
+                _, data = imap.fetch(num, '(RFC822)')
+                _, b = data[0]
+                email_message = email.message_from_bytes(b)
+                for part in email_message.walk():
+                    if part.get_content_type() == "text/plain"\
+                        or part.get_content_type == "text/html":
+                        body = part.get_payload(decode=True)
+                        body_string = body.decode()
+                        list_of_link = re.findall(
+                            r'(https?://[^\s]+)', body_string)
+                        match_list = [match for match in list_of_link
+                            if config.link_base in match]
+                        link_string = match_list[0]
+                        logger.debug(f"Confirmation link: {link_string}.")
+                        chrome_options = Options()
+                        chrome_options.add_argument("--headless")
+                        if config.operating_system == "windows":
+                            chromedriver_autoinstaller.install()
+                            browser = webdriver.Chrome(
+                                options=chrome_options)
+                        if config.operating_system == "raspi":
+                            browser = webdriver.Chrome(
+                                "/usr/lib/chromium-browser/chromedriver",
+                                options=chrome_options)
+                        try:
+                            browser.get(link_string)
+                            # Submit
+                            action = webdriver.ActionChains(browser)
+                            submit = browser.find_element_by_xpath(
+                                '//*[@id="rm_confirm_link"]')
+                            action.move_to_element(submit)
+                            action.click()
+                            action.perform()
+                            browser.close()
+                            logger.debug(
+                                f"Confirmation completed for {user_email}.")
+                        except Exception as e:
+                            print(e)
+            break
+        else:
+            logger.debug(
+                "Confirmation email not found sleeping for 1 minute.")
+            time.sleep(60)
+    imap.close()
+
+def email_confirm():
+    processes = []
+    for user in config.reserver:
+        print(user)
+        p = Process(target=user_email_confirm, args=(user,))
+        print(p)
+        p.start()
+        processes.append(p)
+    for process in processes:
+        print("joining")
+        process.join()
 
 def get_target_date():
     logger.debug("Getting target date.")
@@ -131,7 +150,7 @@ def get_target_date():
     target_day = target_date.strftime(day_string)
     return current_month, target_month, target_day
 
-def browser_reservation(target_month, current_month, target_day,
+def user_reserve(target_month, current_month, target_day,
     time_assignment, idx, user):
     # Open browser
         chrome_options = Options()
@@ -210,7 +229,7 @@ def reserve():
     current_month, target_month, target_day = get_target_date()
     processes = []
     for idx, user in enumerate(config.reserver):
-        p = Process(target=browser_reservation, args=(
+        p = Process(target=user_reserve, args=(
             target_month, current_month, target_day,
             time_assignment, idx, user,))
         p.start()
@@ -221,10 +240,7 @@ def reserve():
 def main():
     setup_logger(logger)
     reserve()
-    logger.debug(
-        "Sleeping for 5 minute to allow for confirmation link to appear.")
-    time.sleep(300)
-    accept_email()
+    email_confirm()
 
 if __name__ == "__main__":
     main()
