@@ -85,5 +85,6 @@
             "19": 5418111
         }
     },
-    "os": "raspi"
+    "os": "raspi",
+    "debug": false
 }
