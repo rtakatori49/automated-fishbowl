@@ -69,6 +69,8 @@ def user_email_confirm(user):
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     imap.login(config.email, config.password)
     imap.select("inbox")
+    wait_time = 0
+    start_time = time.perf_counter()
     while True:
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
             'HEADER subject "Please confirm your booking"')
@@ -117,6 +119,10 @@ def user_email_confirm(user):
             logger.debug(
                 "Confirmation email not found sleeping for 1 minute.")
             time.sleep(60)
+            wait_time = time.perf_counter() - start_time
+            logger.debug(f"Been sleeping for {wait_time} [s]")
+        if wait_time > 120:
+            break
     imap.close()
 
 def email_confirm():
