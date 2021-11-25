@@ -121,7 +121,8 @@ def user_email_confirm(user):
             time.sleep(60)
             wait_time = time.perf_counter() - start_time
             logger.debug(f"Been sleeping for {wait_time} [s]")
-        if wait_time > 120:
+        if wait_time > 3600:
+            logger.error("Email confirmation wait timed out.")
             break
     imap.close()
 
