@@ -66,12 +66,12 @@ def setup_logger(logger):
 def user_email_confirm(user):
     user_email = user["email"]
     logger.debug(f"Confirming reservation for {user_email}.")
-    imap = imaplib.IMAP4_SSL("imap.gmail.com")
-    imap.login(config.email, config.password)
-    imap.select("inbox")
     wait_time = 0
     start_time = time.perf_counter()
     while True:
+        imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        imap.login(config.email, config.password)
+        imap.select("inbox")
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
             'HEADER subject "Please confirm your booking"')
         if search_data[0].split():
