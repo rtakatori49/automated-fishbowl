@@ -112,8 +112,10 @@ def user_email_confirm(user):
                             browser.close()
                             logger.debug(
                                 f"Confirmation completed for {user_email}.")
+                            imap.close()
                         except Exception as e:
                             print(e)
+                            imap.close()
             break
         else:
             logger.debug(
@@ -121,10 +123,11 @@ def user_email_confirm(user):
             time.sleep(60)
             wait_time = time.perf_counter() - start_time
             logger.debug(f"Been sleeping for {wait_time} [s]")
+            imap.close()
         if wait_time > 3600:
             logger.error("Email confirmation wait timed out.")
+            imap.close()
             break
-    imap.close()
 
 def email_confirm():
     processes = []
