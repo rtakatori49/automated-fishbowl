@@ -129,15 +129,6 @@ def user_email_confirm(user):
             imap.close()
             break
 
-def email_confirm():
-    processes = []
-    for user in config.reserver:
-        p = Process(target=user_email_confirm, args=(user,))
-        p.start()
-        processes.append(p)
-    for process in processes:
-        process.join()
-
 def get_target_date():
     logger.debug("Getting target date.")
     # Today's date
@@ -214,6 +205,7 @@ def user_reserve(target_month, current_month, target_day,
             submit.click()
             browser.close()
             logger.debug(f"Reservation for {user['first_name']} completed.")
+            user_email_confirm(user)
         except Exception as e:
             logger.error(e)
 
@@ -247,7 +239,6 @@ def reserve():
 def main():
     setup_logger(logger)
     reserve()
-    email_confirm()
 
 if __name__ == "__main__":
     main()
