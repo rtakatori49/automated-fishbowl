@@ -168,7 +168,7 @@ def user_reserve(target_month, current_month, target_day,
             logger.error(e)
 
         # Change page if target date is next month
-        if target_month != current_month and target_day != "13":
+        if target_month != current_month:
             next_button = browser.find_element_by_xpath(
                 '//*[@id="s-lc-rm-cal"]/div/div/a[2]/span')
             next_button.click()
