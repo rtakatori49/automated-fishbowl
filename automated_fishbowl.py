@@ -98,7 +98,8 @@ def user_email_confirm(user):
                         if config.operating_system == "windows":
                             ser = Service(chromedriver_autoinstaller.install())
                         if config.operating_system == "raspi":
-                            ser = Service("/usr/lib/chromium-browser/chromedriver")
+                            ser = Service(
+                                "/usr/lib/chromium-browser/chromedriver")
                         browser = webdriver.Chrome(
                             service=ser, options=chrome_options)
                         try:
@@ -134,7 +135,6 @@ def get_target_date():
     logger.debug("Getting target date.")
     # Today's date
     current_date = datetime.datetime.now()
-    current_month = current_date.strftime("%m")
 
     # Target date (2 week ahead)
     delta_date = datetime.timedelta(14)
@@ -147,10 +147,9 @@ def get_target_date():
         day_string = "%-d"
     target_month = target_date.strftime(month_string)
     target_day = target_date.strftime(day_string)
-    return current_month, target_month, target_day
+    return target_month, target_day
 
-def user_reserve(target_month, current_month, target_day,
-    time_assignment, idx, user):
+def user_reserve(target_month, target_day, time_assignment, idx, user):
     # Open browser
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -158,8 +157,7 @@ def user_reserve(target_month, current_month, target_day,
         ser = Service(chromedriver_autoinstaller.install())
     if config.operating_system == "raspi":
         ser = Service("/usr/lib/chromium-browser/chromedriver")
-    browser = webdriver.Chrome(
-        service=ser, options=chrome_options)
+    browser = webdriver.Chrome(service=ser, options=chrome_options)
     try:
         logger.debug("Opening browser.")
         browser.get(config.link)
@@ -169,7 +167,7 @@ def user_reserve(target_month, current_month, target_day,
     # Select target month from dropdown
     target_month_dropdown = Select(
         browser.find_element(By.CLASS_NAME, 'ui-datepicker-month'))
-    target_month_dropdown.select_by_value("10")
+    target_month_dropdown.select_by_value(str(int(target_month)-1))
 
     # Click on target date
     calendar_day = browser.find_element(By.LINK_TEXT, target_day)
@@ -223,11 +221,10 @@ def reserve():
         except ValueError as e:
             logger.error(e)
     # Get target date
-    current_month, target_month, target_day = get_target_date()
+    target_month, target_day = get_target_date()
     processes = []
     for idx, user in enumerate(config.reserver):
-        p = Process(target=user_reserve, args=(
-            target_month, current_month, target_day,
+        p = Process(target=user_reserve, args=(target_month, target_day,
             time_assignment, idx, user,))
         p.start()
         processes.append(p)
