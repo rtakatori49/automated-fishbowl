@@ -19,6 +19,9 @@ import time
 from multiprocessing import Process
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 # Load json
 def load_json(filename):
@@ -93,18 +96,16 @@ def user_email_confirm(user):
                         chrome_options = Options()
                         chrome_options.add_argument("--headless")
                         if config.operating_system == "windows":
-                            chromedriver_autoinstaller.install()
-                            browser = webdriver.Chrome(
-                                options=chrome_options)
+                            ser = Service(chromedriver_autoinstaller.install())
                         if config.operating_system == "raspi":
-                            browser = webdriver.Chrome(
-                                "/usr/lib/chromium-browser/chromedriver",
-                                options=chrome_options)
+                            ser = Service("/usr/lib/chromium-browser/chromedriver")
+                        browser = webdriver.Chrome(
+                            service=ser, options=chrome_options)
                         try:
                             browser.get(link_string)
                             # Submit
                             action = webdriver.ActionChains(browser)
-                            submit = browser.find_element_by_xpath(
+                            submit = browser.find_element(By.XPATH,
                                 '//*[@id="rm_confirm_link"]')
                             action.move_to_element(submit)
                             action.click()
@@ -151,63 +152,60 @@ def get_target_date():
 def user_reserve(target_month, current_month, target_day,
     time_assignment, idx, user):
     # Open browser
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        if config.operating_system == "windows":
-            chromedriver_autoinstaller.install()
-            browser = webdriver.Chrome(options=chrome_options)
-        if config.operating_system == "raspi":
-            pass
-            browser = webdriver.Chrome(
-                "/usr/lib/chromium-browser/chromedriver",
-                options=chrome_options)
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    if config.operating_system == "windows":
+        ser = Service(chromedriver_autoinstaller.install())
+    if config.operating_system == "raspi":
+        ser = Service("/usr/lib/chromium-browser/chromedriver")
+    browser = webdriver.Chrome(
+        service=ser, options=chrome_options)
+    try:
+        logger.debug("Opening browser.")
+        browser.get(config.link)
+    except Exception as e:
+        logger.error(e)
+
+    # Select target month from dropdown
+    target_month_dropdown = Select(
+        browser.find_element(By.CLASS_NAME, 'ui-datepicker-month'))
+    target_month_dropdown.select_by_value("10")
+
+    # Click on target date
+    calendar_day = browser.find_element(By.LINK_TEXT, target_day)
+    calendar_day.click()
+    time.sleep(1)
+
+    # Reserve 3 hours
+    time_element_list = [config.time_element[config.room][str(x)]
+        for x in time_assignment[idx]]
+    for time_element in time_element_list:
         try:
-            logger.debug("Opening browser.")
-            browser.get(config.link)
+            reserve_time = browser.find_element(By.XPATH,
+                f"//*[@data-seq={time_element}]")
+            reserve_time.click()
         except Exception as e:
             logger.error(e)
+        # Fill in form
+    logger.debug(f"Starting reservation for {user['first_name']}.")
+    try:
+        first_name = browser.find_element(By.XPATH, '//*[@id="fname"]')
+        first_name.send_keys(user["first_name"])
+        last_name = browser.find_element(By.XPATH, '//*[@id="lname"]')
+        last_name.send_keys(user["last_name"])
+        email = browser.find_element(By.XPATH, '//*[@id="email"]')
+        email.send_keys(user["email"])
+        group_name = browser.find_element(By.XPATH, '//*[@id="nick"]')
+        group_name.send_keys(f"{user['first_name']}'s Study Group")
 
-        # Change page if target date is next month
-        if target_month != current_month:
-            next_button = browser.find_element_by_xpath(
-                '//*[@id="s-lc-rm-cal"]/div/div/a[2]/span')
-            next_button.click()
-
-        # Click on target date
-        calendar_day = browser.find_element_by_link_text(target_day)
-        calendar_day.click()
-        time.sleep(1)
-
-        # Reserve 3 hours
-        time_element_list = [config.time_element[config.room][str(x)]
-            for x in time_assignment[idx]]
-        for time_element in time_element_list:
-            try:
-                reserve_time = browser.find_element_by_xpath(
-                    f"//*[@data-seq={time_element}]")
-                reserve_time.click()
-            except Exception as e:
-                logger.error(e)
-         # Fill in form
-        logger.debug(f"Starting reservation for {user['first_name']}.")
-        try:
-            first_name = browser.find_element_by_xpath('//*[@id="fname"]')
-            first_name.send_keys(user["first_name"])
-            last_name = browser.find_element_by_xpath('//*[@id="lname"]')
-            last_name.send_keys(user["last_name"])
-            email = browser.find_element_by_xpath('//*[@id="email"]')
-            email.send_keys(user["email"])
-            group_name = browser.find_element_by_xpath('//*[@id="nick"]')
-            group_name.send_keys(f"{user['first_name']}'s Study Group")
-
-            # Submit
-            submit = browser.find_element_by_xpath('//*[@id="s-lc-rm-sub"]')
-            submit.click()
-            browser.close()
-            logger.debug(f"Reservation for {user['first_name']} completed.")
-            user_email_confirm(user)
-        except Exception as e:
-            logger.error(e)
+        # Submit
+        submit = browser.find_element(By.XPATH, '//*[@id="s-lc-rm-sub"]')
+        submit.click()
+        browser.close()
+        logger.debug(f"Reservation for {user['first_name']} completed.")
+        user_email_confirm(user)
+    except Exception as e:
+        logger.error(e)
 
 # Reservation
 def reserve():
