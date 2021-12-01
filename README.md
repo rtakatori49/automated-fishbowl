@@ -11,10 +11,12 @@ This was created in order to remove the effort required to reserve a fishbowl.
 `pip3 install -r requirements.txt`
 
 3. Copy config_template.json and rename to config.json:
-    * email.json if main email that will accept has changed, or the accept link has changed
-    * fishbowl.json if fishbowl site link, room, time has changed
-    * reserver.json if Cal Poly email used to reserve fishbowl needs to be changed
-    * time_element.json if inspect element of times have changed
+    * Reserver: Fill all the users with first and last name and email
+    * Fishbowl: Link to reservation site, room to reserve, and times to reserve
+    * Email: Credentials of centralized email to accept confirmation email and base link for confirmation link
+    * Time Element: Element found with inspect element for each time slot
+    * OS: Operating system; `windows` for Windows, `raspi` for pi running raspian
+    * Debug: Set to `true` for logging debug messages `false` for only error logs
 
 4. Edit crontab to schedule to run every weekday:
 
