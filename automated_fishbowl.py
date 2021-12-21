@@ -72,6 +72,7 @@ def user_email_confirm(user):
     wait_time = 0
     start_time = time.perf_counter()
     while True:
+        logger.debug("Checking email.")
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(config.email, config.password)
         imap.select("inbox")
@@ -100,9 +101,11 @@ def user_email_confirm(user):
                         if config.operating_system == "raspi":
                             ser = Service(
                                 "/usr/lib/chromium-browser/chromedriver")
+                        logger.debug("Opening browser for confirmation.")
                         browser = webdriver.Chrome(
                             service=ser, options=chrome_options)
                         try:
+                            logger.debug(f"Opening link {link_string}.")
                             browser.get(link_string)
                             # Submit
                             action = webdriver.ActionChains(browser)
@@ -135,46 +138,76 @@ def get_target_date():
     logger.debug("Getting target date.")
     # Today's date
     current_date = datetime.datetime.now()
-
+    logger.debug(f"Current date: {current_date}")
     # Target date (2 week ahead)
     delta_date = datetime.timedelta(14)
     target_date = current_date + delta_date
+    logger.debug(f"Target date: {target_date}")
     if config.operating_system == "windows":
+        year_string = "%#Y"
         month_string = "%#m"
         day_string = "%#d"
     if config.operating_system == "raspi":
+        year_string = "%-Y"
         month_string = "%-m"
         day_string = "%-d"
+    target_year = target_date.strftime(year_string)
     target_month = target_date.strftime(month_string)
     target_day = target_date.strftime(day_string)
-    return target_month, target_day
+    return target_year, target_month, target_day
 
-def user_reserve(target_month, target_day, time_assignment, idx, user):
+def user_reserve(target_year, target_month,
+        target_day, time_assignment, idx, user):
+    logger.debug(f"Starting reservation for {user['first_name']}.")
+    logger.debug(f"Configuring browser.")
     # Open browser
     chrome_options = Options()
     chrome_options.add_argument("--headless")
+    logger.debug("Browser running headless")
     if config.operating_system == "windows":
         ser = Service(chromedriver_autoinstaller.install())
     if config.operating_system == "raspi":
         ser = Service("/usr/lib/chromium-browser/chromedriver")
+    logger.debug(f"Operating system: {config.operating_system}")
     browser = webdriver.Chrome(service=ser, options=chrome_options)
     try:
-        logger.debug("Opening browser.")
+        logger.debug("Opening browser for reservation.")
         browser.get(config.link)
+        logger.debug(f"Opening link: {config.link}.")
     except Exception as e:
         logger.error(e)
 
+    # Check page year
+    page_year = browser.find_element(
+        By.CLASS_NAME, 'ui-datepicker-year').text
+    if page_year == target_year:
+        same_year = True
+        logger.debug("Page on same year.")
+    else:
+        same_year = False
+        logger.debug("Page on different year.")
+
     # Select target month from dropdown
-    target_month_dropdown = Select(
-        browser.find_element(By.CLASS_NAME, 'ui-datepicker-month'))
-    target_month_dropdown.select_by_value(str(int(target_month)-1))
+    if same_year:
+        logger.debug("Using dropdown to select month.")
+        target_month_dropdown = Select(
+            browser.find_element(By.CLASS_NAME, 'ui-datepicker-month'))
+        target_month_dropdown.select_by_value(str(int(target_month)-1))
+    else:
+        logger.debug("Using next button to change month.")
+        next_month_button = browser.find_element(
+            By.CLASS_NAME, 'ui-icon-circle-triangle-e')
+        next_month_button.click()
+        time.sleep(1)
 
     # Click on target date
+    logger.debug(f"Selecting date: {target_day}.")
     calendar_day = browser.find_element(By.LINK_TEXT, target_day)
     calendar_day.click()
     time.sleep(1)
 
     # Reserve 3 hours
+    logger.debug("Reserving time.")
     time_element_list = [config.time_element[config.room][str(x)]
         for x in time_assignment[idx]]
     for time_element in time_element_list:
@@ -185,8 +218,8 @@ def user_reserve(target_month, target_day, time_assignment, idx, user):
         except Exception as e:
             logger.error(e)
         # Fill in form
-    logger.debug(f"Starting reservation for {user['first_name']}.")
     try:
+        logger.debug("Filling in form.")
         first_name = browser.find_element(By.XPATH, '//*[@id="fname"]')
         first_name.send_keys(user["first_name"])
         last_name = browser.find_element(By.XPATH, '//*[@id="lname"]')
@@ -197,6 +230,7 @@ def user_reserve(target_month, target_day, time_assignment, idx, user):
         group_name.send_keys(f"{user['first_name']}'s Study Group")
 
         # Submit
+        logger.debug("Submitting.")
         submit = browser.find_element(By.XPATH, '//*[@id="s-lc-rm-sub"]')
         submit.click()
         browser.close()
@@ -221,11 +255,11 @@ def reserve():
         except ValueError as e:
             logger.error(e)
     # Get target date
-    target_month, target_day = get_target_date()
+    target_year, target_month, target_day = get_target_date()
     processes = []
     for idx, user in enumerate(config.reserver):
-        p = Process(target=user_reserve, args=(target_month, target_day,
-            time_assignment, idx, user,))
+        p = Process(target=user_reserve, args=(target_year, target_month,
+            target_day, time_assignment, idx, user,))
         p.start()
         processes.append(p)
     for process in processes:
