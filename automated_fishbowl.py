@@ -158,7 +158,6 @@ def get_target_date():
 
 def user_reserve(target_year, target_month,
         target_day, time_assignment, idx, user):
-    print(time_assignment[idx])
     logger.debug(f"Starting reservation for {user['first_name']}.")
     logger.debug(f"Configuring browser.")
     # Open browser
