@@ -37,7 +37,7 @@ class Config:
         fishbowl = d["fishbowl"]
         self.link = fishbowl["link"]
         self.room = fishbowl["room"]
-        self.time = fishbowl["time"]
+        self.slot_count = fishbowl["slot_count"]
         email_dict = d["email"]
         self.email = email_dict["user"]
         self.password = email_dict["password"]
@@ -158,6 +158,7 @@ def get_target_date():
 
 def user_reserve(target_year, target_month,
         target_day, time_assignment, idx, user):
+    print(time_assignment[idx])
     logger.debug(f"Starting reservation for {user['first_name']}.")
     logger.debug(f"Configuring browser.")
     # Open browser
@@ -208,9 +209,7 @@ def user_reserve(target_year, target_month,
 
     # Reserve 3 hours
     logger.debug("Reserving time.")
-    time_element_list = [config.time_element[config.room][str(x)]
-        for x in time_assignment[idx]]
-    for time_element in time_element_list:
+    for time_element in time_assignment[idx]:
         try:
             reserve_time = browser.find_element(By.XPATH,
                 f"//*[@data-seq={time_element}]")
@@ -243,7 +242,11 @@ def user_reserve(target_year, target_month,
 def reserve():
     logger.debug("Starting fishbowl reservation.")
     # Assign times to each user
-    time_assignment = np.array_split(config.time, len(config.reserver))
+    time_element_base = config.time_element[config.room]
+    time_element = range(
+        time_element_base,
+        time_element_base+config.slot_count)
+    time_assignment = np.array_split(time_element, len(config.reserver))
     # Make sure there are enough users to fill 3 times slots per user
     logger.debug("Assigning time to each user.")
     for assignment in time_assignment:

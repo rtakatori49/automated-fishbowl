@@ -14,7 +14,7 @@ This was created in order to remove the effort required to reserve a fishbowl.
     * Reserver: Fill all the users with first and last name and email
     * Fishbowl: Link to reservation site, room to reserve, and times to reserve
     * Email: Credentials of centralized email to accept confirmation email and base link for confirmation link
-    * Time Element: Element found with inspect element for each time slot
+    * Time Element: Element found with inspect element for beginning time slot
     * OS: Operating system; `windows` for Windows, `raspi` for pi running raspian
     * Debug: Set to `true` for logging debug messages `false` for only error logs
 
