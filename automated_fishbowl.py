@@ -119,7 +119,7 @@ def user_email_confirm(user):
                                 f"Confirmation completed for {user_email}.")
                             imap.close()
                         except Exception as e:
-                            print(e)
+                            logger.error(e)
                             imap.close()
             break
         else:
