@@ -23,60 +23,78 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
+
 # Load json
 def load_json(filename):
     with open(filename) as f:
         data = json.load(f)
     return data
 
+
 class Config:
     def __init__(self):
-        d = load_json("config.json")
-        self.reserver = d["reserver"]
-        self.time_element = d["time_element"]
-        fishbowl = d["fishbowl"]
-        self.link = fishbowl["link"]
-        self.room = fishbowl["room"]
-        self.slot_count = fishbowl["slot_count"]
-        email_dict = d["email"]
-        self.email = email_dict["user"]
-        self.password = email_dict["password"]
-        self.link_base = email_dict["link_base"]
-        self.operating_system = d["os"]
-        self.debug = d["debug"]
+        d = load_json('config.json')
+        self.reserver = d['reserver']
+        self.time_element = d['time_element']
+        fishbowl = d['fishbowl']
+        self.link = fishbowl['link']
+        self.room = fishbowl['room']
+        self.slot_count = fishbowl['slot_count']
+        email_dict = d['email']
+        self.email = email_dict['user']
+        self.password = email_dict['password']
+        self.link_base = email_dict['link_base']
+        self.operating_system = d['os']
+        self.debug = d['debug']
+        self.academic_calendar = d['academic_calendar']
 config = Config()
+
 
 # Logging
 logger = logging.getLogger(__name__)
 def setup_logger(logger):
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s:%(name)s:%(message)s")
-    if not os.path.isdir("log"):
-        os.mkdir("log")
+    formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
+    if not os.path.isdir('log'):
+        os.mkdir('log')
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     if config.debug:
-        file_handler = logging.FileHandler("log/debug.txt")
+        file_handler = logging.FileHandler('log/debug.txt')
         file_handler.setLevel(logging.DEBUG)
     else:
-        file_handler = logging.FileHandler("log/error.txt")
+        file_handler = logging.FileHandler('log/error.txt')
         file_handler.setLevel(logging.ERROR)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     multiprocessing_logging.install_mp_handler(logger)
 
+
+def open_browser():
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    logger.debug("Browser running headless")
+    if config.operating_system == 'windows':
+        ser = Service(chromedriver_autoinstaller.install())
+    if config.operating_system == 'raspi':
+        ser = Service('/usr/lib/chromium-browser/chromedriver')
+    logger.debug(f"Operating system: {config.operating_system}")
+    browser = webdriver.Chrome(service=ser, options=chrome_options)
+    return browser
+
+
 def user_email_confirm(user):
-    user_email = user["email"]
+    user_email = user['email']
     logger.debug(f"Confirming reservation for {user_email}.")
     wait_time = 0
     start_time = time.perf_counter()
     while True:
         logger.debug("Checking email.")
-        imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        imap = imaplib.IMAP4_SSL('imap.gmail.com')
         imap.login(config.email, config.password)
-        imap.select("inbox")
-        _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
+        imap.select('inbox')
+        _, search_data = imap.search(None, 'UNSEEN', f"FROM {user_email}",
             'HEADER subject "Please confirm your booking"')
         if search_data[0].split():
             for num in search_data[0].split():
@@ -84,8 +102,8 @@ def user_email_confirm(user):
                 _, b = data[0]
                 email_message = email.message_from_bytes(b)
                 for part in email_message.walk():
-                    if part.get_content_type() == "text/plain"\
-                        or part.get_content_type == "text/html":
+                    if part.get_content_type() == 'text/plain'\
+                        or part.get_content_type == 'text/html':
                         body = part.get_payload(decode=True)
                         body_string = body.decode()
                         list_of_link = re.findall(
@@ -94,16 +112,7 @@ def user_email_confirm(user):
                             if config.link_base in match]
                         link_string = match_list[0]
                         logger.debug(f"Confirmation link: {link_string}.")
-                        chrome_options = Options()
-                        chrome_options.add_argument("--headless")
-                        if config.operating_system == "windows":
-                            ser = Service(chromedriver_autoinstaller.install())
-                        if config.operating_system == "raspi":
-                            ser = Service(
-                                "/usr/lib/chromium-browser/chromedriver")
-                        logger.debug("Opening browser for confirmation.")
-                        browser = webdriver.Chrome(
-                            service=ser, options=chrome_options)
+                        browser = open_browser()
                         try:
                             logger.debug(f"Opening link {link_string}.")
                             browser.get(link_string)
@@ -134,6 +143,7 @@ def user_email_confirm(user):
             imap.close()
             break
 
+
 def get_target_date():
     logger.debug("Getting target date.")
     # Today's date
@@ -143,33 +153,48 @@ def get_target_date():
     delta_date = datetime.timedelta(14)
     target_date = current_date + delta_date
     logger.debug(f"Target date: {target_date}")
-    if config.operating_system == "windows":
-        year_string = "%#Y"
-        month_string = "%#m"
-        day_string = "%#d"
-    if config.operating_system == "raspi":
-        year_string = "%-Y"
-        month_string = "%-m"
-        day_string = "%-d"
+    if config.operating_system == 'windows':
+        year_string = '%#Y'
+        month_string = '%#m'
+        day_string = '%#d'
+    if config.operating_system == 'raspi':
+        year_string = '%-Y'
+        month_string = '%-m'
+        day_string = '%-d'
     target_year = target_date.strftime(year_string)
     target_month = target_date.strftime(month_string)
     target_day = target_date.strftime(day_string)
-    return target_year, target_month, target_day
+    return target_date, target_year, target_month, target_day
+
+
+def find_date(browser, table_id, target_description):
+    try:
+        # Find table with date
+        start_table = browser.find_element(By.CSS_SELECTOR,
+            f'table[id*="{table_id}"]')
+        # Get year from table
+        table_caption = start_table.find_elements(By.CSS_SELECTOR,
+            'caption')[0].text
+        year = re.search('\d{4}', table_caption).group(0)
+        # Look for month and day from table
+        for row in start_table.find_elements(By.CSS_SELECTOR, 'tr'):
+            if target_description in row.text:
+                cell = row.find_elements(By.CSS_SELECTOR, 'td')[0]
+                month_and_day = cell.text
+        # Generate datetime
+        date_time = datetime.datetime.strptime(f'{month_and_day} {year}',
+            '%B %d %Y')
+    except Exception as e:
+        logger.error(e)
+    return date_time
+
 
 def user_reserve(target_year, target_month,
         target_day, time_assignment, idx, user):
     logger.debug(f"Starting reservation for {user['first_name']}.")
     logger.debug(f"Configuring browser.")
     # Open browser
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    logger.debug("Browser running headless")
-    if config.operating_system == "windows":
-        ser = Service(chromedriver_autoinstaller.install())
-    if config.operating_system == "raspi":
-        ser = Service("/usr/lib/chromium-browser/chromedriver")
-    logger.debug(f"Operating system: {config.operating_system}")
-    browser = webdriver.Chrome(service=ser, options=chrome_options)
+    browser = open_browser()
     try:
         logger.debug("Opening browser for reservation.")
         browser.get(config.link)
@@ -219,11 +244,11 @@ def user_reserve(target_year, target_month,
     try:
         logger.debug("Filling in form.")
         first_name = browser.find_element(By.XPATH, '//*[@id="fname"]')
-        first_name.send_keys(user["first_name"])
+        first_name.send_keys(user['first_name'])
         last_name = browser.find_element(By.XPATH, '//*[@id="lname"]')
-        last_name.send_keys(user["last_name"])
+        last_name.send_keys(user['last_name'])
         email = browser.find_element(By.XPATH, '//*[@id="email"]')
-        email.send_keys(user["email"])
+        email.send_keys(user['email'])
         group_name = browser.find_element(By.XPATH, '//*[@id="nick"]')
         group_name.send_keys(f"{user['first_name']}'s Study Group")
 
@@ -236,6 +261,7 @@ def user_reserve(target_year, target_month,
         user_email_confirm(user)
     except Exception as e:
         logger.error(e)
+
 
 # Reservation
 def reserve():
@@ -257,19 +283,39 @@ def reserve():
         except ValueError as e:
             logger.error(e)
     # Get target date
-    target_year, target_month, target_day = get_target_date()
-    processes = []
-    for idx, user in enumerate(config.reserver):
-        p = Process(target=user_reserve, args=(target_year, target_month,
-            target_day, time_assignment, idx, user,))
-        p.start()
-        processes.append(p)
-    for process in processes:
-        process.join()
+    target_date, target_year, target_month, target_day = get_target_date()
+    browser = open_browser()
+    browser.get(config.academic_calendar['link'])
+    start_date = find_date(browser,
+        config.academic_calendar['start']['table_id'],
+        config.academic_calendar['start']['description'])
+    logger.debug(f"School start date: {start_date}")
+    end_date = find_date(browser,
+        config.academic_calendar['end']['table_id'],
+        config.academic_calendar['end']['description'])
+    logger.debug(f"School end date: {end_date}")
+    try:
+        logger.debug("Checking target date against academic calendar.")
+        if start_date < target_date and end_date > target_date:
+            processes = []
+            for idx, user in enumerate(config.reserver):
+                p = Process(target=user_reserve, args=(target_year,
+                    target_month, target_day, time_assignment, idx,
+                    user,))
+                p.start()
+                processes.append(p)
+            for process in processes:
+                process.join()
+        else:
+            raise ValueError('Target day is not a school day.')
+    except ValueError as e:
+        logger.error(e)
     
+
 def main():
     setup_logger(logger)
     reserve()
+
 
 if __name__ == "__main__":
     main()

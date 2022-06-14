@@ -42,6 +42,17 @@
         "216Q": 5416101,
         "216S": 5418101
     },
+    "academic_calendar": {
+        "link": "https://registrar.calpoly.edu/academic-calendar",
+        "start": {
+            "table_id": "FALL TERM",
+            "description": "Fall term classes begin"
+        },
+        "end": {
+            "table_id": "SPRING TERM",
+            "description": "End of spring term"
+        }
+    },
     "os": "raspi",
     "debug": false
 }
