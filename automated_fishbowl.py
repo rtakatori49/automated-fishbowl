@@ -38,6 +38,7 @@ class Config:
         self.link = fishbowl["link"]
         self.room = fishbowl["room"]
         self.slot_count = fishbowl["slot_count"]
+        self.day_delta = fishbowl["day_delta"]
         email_dict = d["email"]
         self.email = email_dict["user"]
         self.password = email_dict["password"]
@@ -139,8 +140,8 @@ def get_target_date():
     # Today's date
     current_date = datetime.datetime.now()
     logger.debug(f"Current date: {current_date}")
-    # Target date (2 week ahead)
-    delta_date = datetime.timedelta(14)
+    # Target date (time defined in config)
+    delta_date = datetime.timedelta(config.day_delta)
     target_date = current_date + delta_date
     logger.debug(f"Target date: {target_date}")
     if config.operating_system == "windows":

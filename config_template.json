@@ -29,7 +29,8 @@
     "fishbowl": {
         "link": "http://schedule.lib.calpoly.edu/rooms.php?i=2015",
         "room": "216S",
-        "slot_count": 14
+        "slot_count": 14,
+	"day_delta": 56
     },
     "email": {
         "user": "",
