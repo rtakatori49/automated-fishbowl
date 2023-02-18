@@ -76,9 +76,10 @@ def user_email_confirm(user):
         logger.debug("Checking email.")
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(config.email, config.password)
-        imap.select("inbox")
+        imap.select("inbox", readonly=False)
+        today_date = datetime.datetime.now().strftime('%m-%d-%Y')
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
-            'HEADER subject "Please confirm your booking"')
+            'HEADER subject "Please confirm your booking"', "SINCE", f'"{today_date}"')
         if search_data[0].split():
             for num in search_data[0].split():
                 _, data = imap.fetch(num, '(RFC822)')
@@ -86,7 +87,7 @@ def user_email_confirm(user):
                 email_message = email.message_from_bytes(b)
                 for part in email_message.walk():
                     if part.get_content_type() == "text/plain"\
-                        or part.get_content_type == "text/html":
+                            or part.get_content_type == "text/html":
                         body = part.get_payload(decode=True)
                         body_string = body.decode()
                         list_of_link = re.findall(
