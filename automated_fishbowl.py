@@ -95,7 +95,7 @@ def user_email_confirm(user):
         imap = imaplib.IMAP4_SSL('imap.gmail.com')
         imap.login(config.email, config.password)
         imap.select("inbox", readonly=False)
-        today_date = datetime.datetime.now().strftime('%m-%d-%Y')
+        today_date = datetime.datetime.now().strftime('%d-%b-%Y')
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
             'HEADER subject "Please confirm your booking"', f"SINCE {today_date}")
         if search_data[0].split():
