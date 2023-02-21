@@ -47,6 +47,7 @@ class Config:
         self.link_base = email_dict["link_base"]
         self.operating_system = d["os"]
         self.debug = d["debug"]
+        self.academic_calendar = d["academic_calendar"]
 config = Config()
 
 
