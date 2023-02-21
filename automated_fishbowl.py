@@ -186,10 +186,9 @@ def find_date(browser, table_id, target_description):
         # Generate datetime
         date_time = datetime.datetime.strptime(f'{month_and_day} {year}',
             '%B %d %Y')
+        return date_time
     except Exception as e:
         logger.error(e)
-    return date_time
-
 
 def user_reserve(target_year, target_month,
         target_day, time_assignment, idx, user):

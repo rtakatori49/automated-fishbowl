@@ -51,7 +51,7 @@
         },
         "end": {
             "table_id": "SPRING TERM",
-            "description": "End of spring term"
+            "description": "Last day of classes"
         }
     },
     "os": "raspi",
