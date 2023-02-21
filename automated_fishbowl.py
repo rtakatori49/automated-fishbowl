@@ -79,7 +79,7 @@ def user_email_confirm(user):
         imap.select("inbox", readonly=False)
         today_date = datetime.datetime.now().strftime('%m-%d-%Y')
         _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
-            'HEADER subject "Please confirm your booking"', "SINCE", f'"{today_date}"')
+            'HEADER subject "Please confirm your booking"', f"SINCE {today_date}")
         if search_data[0].split():
             for num in search_data[0].split():
                 _, data = imap.fetch(num, '(RFC822)')
