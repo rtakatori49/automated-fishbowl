@@ -33,20 +33,20 @@ def load_json(filename):
 
 class Config:
     def __init__(self):
-        d = load_json('config.json')
-        self.reserver = d['reserver']
-        self.time_element = d['time_element']
-        fishbowl = d['fishbowl']
-        self.link = fishbowl['link']
-        self.room = fishbowl['room']
-        self.slot_count = fishbowl['slot_count']
-        email_dict = d['email']
-        self.email = email_dict['user']
-        self.password = email_dict['password']
-        self.link_base = email_dict['link_base']
-        self.operating_system = d['os']
-        self.debug = d['debug']
-        self.academic_calendar = d['academic_calendar']
+        d = load_json("config.json")
+        self.reserver = d["reserver"]
+        self.time_element = d["time_element"]
+        fishbowl = d["fishbowl"]
+        self.link = fishbowl["link"]
+        self.room = fishbowl["room"]
+        self.slot_count = fishbowl["slot_count"]
+        self.day_delta = fishbowl["day_delta"]
+        email_dict = d["email"]
+        self.email = email_dict["user"]
+        self.password = email_dict["password"]
+        self.link_base = email_dict["link_base"]
+        self.operating_system = d["os"]
+        self.debug = d["debug"]
 config = Config()
 
 
@@ -93,9 +93,10 @@ def user_email_confirm(user):
         logger.debug("Checking email.")
         imap = imaplib.IMAP4_SSL('imap.gmail.com')
         imap.login(config.email, config.password)
-        imap.select('inbox')
-        _, search_data = imap.search(None, 'UNSEEN', f"FROM {user_email}",
-            'HEADER subject "Please confirm your booking"')
+        imap.select("inbox", readonly=False)
+        today_date = datetime.datetime.now().strftime('%m-%d-%Y')
+        _, search_data = imap.search(None, "UNSEEN", f"FROM {user_email}",
+            'HEADER subject "Please confirm your booking"', f"SINCE {today_date}")
         if search_data[0].split():
             for num in search_data[0].split():
                 _, data = imap.fetch(num, '(RFC822)')
@@ -149,8 +150,8 @@ def get_target_date():
     # Today's date
     current_date = datetime.datetime.now()
     logger.debug(f"Current date: {current_date}")
-    # Target date (2 week ahead)
-    delta_date = datetime.timedelta(14)
+    # Target date (time defined in config)
+    delta_date = datetime.timedelta(config.day_delta)
     target_date = current_date + delta_date
     logger.debug(f"Target date: {target_date}")
     if config.operating_system == 'windows':
